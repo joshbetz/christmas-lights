@@ -162,6 +162,59 @@
       // reset transform
       const wire = this.shadowRoot.querySelector('.wire');
       if(wire) wire.style.transform = 'translateY(0px)';
+
+      // Align bulbs vertically to the SVG wire curve
+      const wireRect = wire.getBoundingClientRect();
+      const wireWidthPx = wireRect.width || this.getBoundingClientRect().width;
+      const containerHeightPx = 36 * size; // matches SVG viewBox height scaled by size
+
+      // Cubic Bezier helper
+      const pointOnCubic = (p0, p1, p2, p3, t) => {
+        const mt = 1 - t;
+        const x = mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x;
+        const y = mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y;
+        return {x,y};
+      };
+      // Two segments of the path in SVG coordinate space
+      const seg1 = {
+        p0: {x:0, y:4}, p1: {x:20, y:10}, p2: {x:40, y:2}, p3: {x:60, y:8}
+      };
+      const seg2 = {
+        p0: {x:60, y:8}, p1: {x:80, y:14}, p2: {x:90, y:4}, p3: {x:100, y:10}
+      };
+      const findYForX = (xTarget) => {
+        const segment = xTarget <= 60 ? seg1 : seg2;
+        // Normalize x range for the segment
+        const xStart = segment.p0.x;
+        const xEnd = segment.p3.x;
+        const xNorm = (xTarget - xStart) / (xEnd - xStart);
+        // Search t ~ xNorm first, refine with small iterations
+        let t = Math.min(1, Math.max(0, xNorm));
+        let best = pointOnCubic(segment.p0, segment.p1, segment.p2, segment.p3, t);
+        // refine by local search
+        const step = 1/50;
+        let bestDiff = Math.abs(best.x - xTarget);
+        for(let i=-25;i<=25;i++){
+          const ti = Math.min(1, Math.max(0, t + i*step));
+          const p = pointOnCubic(segment.p0, segment.p1, segment.p2, segment.p3, ti);
+          const d = Math.abs(p.x - xTarget);
+          if(d < bestDiff){ bestDiff = d; best = p; }
+        }
+        return best.y;
+      };
+
+      // Position each bulb so its cap aligns near the wire
+      bulbEls.forEach((b, i) => {
+        const iVal = i; // index
+        const midIdx = mid; // center index
+        const leftPx = (wireWidthPx * 0.5) + spacing * (iVal - midIdx);
+        const xPercent = (leftPx / wireWidthPx) * 100; // to SVG viewBox 0..100
+        const ySvg = findYForX(Math.max(0, Math.min(100, xPercent)));
+        const yPx = ySvg * (containerHeightPx / 36); // scale to container
+        // Position so the wire intersects the gap at the cap
+        const attachOffset = 6 * size; // default alignment to cap gap
+        b.style.top = `${(yPx - attachOffset + 13).toFixed(2)}px`;
+      });
     }
     _handleScroll(){
       const state = this._scrollState;
