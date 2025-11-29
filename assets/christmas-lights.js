@@ -83,7 +83,8 @@
     _setWireLength(){
       const wire = this.shadowRoot.querySelector('.wire');
       if(!wire) return;
-      const width = this.getBoundingClientRect().width;
+      // Avoid forced reflow: use viewport width since wire is 100% width
+      const width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
       wire.style.setProperty('--wire-width', `${width}px`);
     }
     /** Build styles, wire, bulbs and align to path */
@@ -185,8 +186,8 @@
       if(wire) wire.style.transform = 'translateY(0px)';
 
       // Align bulbs vertically to the SVG wire curve
-      const wireRect = wire.getBoundingClientRect();
-      const wireWidthPx = wireRect.width || this.getBoundingClientRect().width;
+      // Avoid layout reads: wire fills viewport width, so use viewport width
+      const wireWidthPx = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
       const containerHeightPx = 36 * size; // matches SVG viewBox height scaled by size
 
       // Cubic Bezier helper

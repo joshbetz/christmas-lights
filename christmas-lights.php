@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Christmas Lights
  * Description: Adds a lightweight string of Christmas lights to the top of your site using a standalone Web Component.
- * Version: 0.1.1
+ * Version: 0.1.2
  * Author: Josh
  */
 
