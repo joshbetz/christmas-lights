@@ -1,4 +1,21 @@
 (function(){
+  /**
+   * `<christmas-lights>` web component
+   *
+   * Attributes (optional):
+   * - count: Number of bulbs. If `fit` is not false, acts as a minimum and auto-fits to viewport. Default: 24.
+   * - colors: Preset name (`classic`, `warm`) or comma-separated list of CSS colors. Default: `classic`.
+   * - twinkle: Toggle twinkle animation. Values: `true`/`false` (string). Default: `true`.
+   * - speed: Animation speed multiplier. Lower = slower. Default: 0.6.
+   * - size: Scale factor for bulbs and wire. Default: 1.
+   * - offset: Vertical offset in pixels from the top of the viewport. Default: 0.
+   * - spacing: Fixed pixel spacing between bulbs. Default: 64.
+   * - fit: Auto-fit bulbs to fill viewport width. Values: `true`/`false` (string). Default: `true`.
+   *
+   * Notes:
+   * - Bulbs are centered around the midpoint, keeping the center stable on resize.
+   * - Wire alignment uses the SVG path; attachment point (cap gap) is correct by default.
+   */
   class ChristmasLights extends HTMLElement {
     static get observedAttributes() {
       return ['count','colors','twinkle','speed','size','offset','spacing','fit'];
@@ -6,6 +23,7 @@
     constructor(){
       super();
       this.attachShadow({mode:'open'});
+      // Default configuration mapped from attributes
       this._config = {
         count: 24,
         colors: 'classic',
@@ -33,6 +51,7 @@
       window.removeEventListener('scroll', this._onScroll);
       if(this._scrollState.raf){ cancelAnimationFrame(this._scrollState.raf); this._scrollState.raf = null; }
     }
+    /** Reflect attribute changes into internal config */
     attributeChangedCallback(name, oldVal, newVal){
       if(oldVal === newVal) return;
       switch(name){
@@ -60,12 +79,14 @@
     _reflow(){
       this._setWireLength();
     }
+    /** Sync wire width CSS var with host width */
     _setWireLength(){
       const wire = this.shadowRoot.querySelector('.wire');
       if(!wire) return;
       const width = this.getBoundingClientRect().width;
       wire.style.setProperty('--wire-width', `${width}px`);
     }
+    /** Build styles, wire, bulbs and align to path */
     _render(){
       const cfg = this._config;
       const presetMap = {
@@ -216,6 +237,7 @@
         b.style.top = `${(yPx - attachOffset + 13).toFixed(2)}px`;
       });
     }
+    /** Scroll handler adds bounce impulse */
     _handleScroll(){
       const state = this._scrollState;
       const y = window.scrollY || 0;
@@ -226,6 +248,7 @@
       // start RAF loop
       if(!state.raf){ state.raf = requestAnimationFrame(this._animateBounce.bind(this)); }
     }
+    /** Spring-damper bounce on wire element */
     _animateBounce(){
       const wire = this.shadowRoot && this.shadowRoot.querySelector('.wire');
       const state = this._scrollState;
