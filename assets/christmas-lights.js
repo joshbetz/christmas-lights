@@ -38,6 +38,7 @@
     }
     connectedCallback(){
       this._upgradeProps();
+      this._updateOffsetForAdminBar();
       this._render();
       this._onResize = this._reflow.bind(this);
       window.addEventListener('resize', this._onResize, {passive:true});
@@ -73,6 +74,17 @@
           const v = this[p];
           delete this[p];
           this.setAttribute(p, v);
+        }
+      }
+    }
+    _updateOffsetForAdminBar(){
+      // Check if WordPress admin bar is present
+      const adminBar = document.getElementById('wpadminbar');
+      if(adminBar){
+        const adminBarHeight = adminBar.offsetHeight;
+        // Only adjust if offset hasn't been explicitly set via attribute
+        if(!this.hasAttribute('offset')){
+          this._config.offset = adminBarHeight;
         }
       }
     }
