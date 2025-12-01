@@ -8,6 +8,8 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
+define( 'CL_VERSION', '0.1.2' );
+
 function cl_plugin_url() {
 	return plugin_dir_url( __FILE__ );
 }
@@ -15,7 +17,7 @@ function cl_plugin_url() {
 function cl_enqueue_assets() {
 	// Prefer CDN if defined via filter; fallback to bundled asset.
 	$src = apply_filters( 'christmas_lights_component_src', cl_plugin_url() . 'assets/christmas-lights.js' );
-	wp_enqueue_script( 'christmas-lights', $src, array(), '0.1.0', true );
+	wp_enqueue_script( 'christmas-lights', $src, array(), CL_VERSION, true );
 }
 add_action( 'wp_enqueue_scripts', 'cl_enqueue_assets' );
 
