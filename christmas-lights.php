@@ -1,9 +1,13 @@
 <?php
-/**
+/*
  * Plugin Name: Christmas Lights
+ * Plugin URI: https://josh.blog/2025/11/christmas-lights-plugin
  * Description: Adds a lightweight string of Christmas lights to the top of your site using a standalone Web Component.
  * Version: 0.1.2
- * Author: Josh
+ * Author: Josh Betz
+ * Author URI: https://josh.blog/
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
