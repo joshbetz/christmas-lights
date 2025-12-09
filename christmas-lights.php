@@ -12,7 +12,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'CL_VERSION', '0.1.2' );
+define( 'CL_VERSION', '0.1.3' );
 
 function cl_plugin_url() {
 	return plugin_dir_url( __FILE__ );
